@@ -1,37 +1,28 @@
-def varre_grafo(options):
-    resp = options[0]
-    for i in options:
-        if i < resp:
-            resp = i
-    return resp
+'''
+    A busca A* tem uma função de avaliação f(n), que é a soma do custo do caminho já percorrido (g(n)) e a função heurística adotada no problema (h(n))
 
+    A h(n) utilizada para esse caso é a distância em linha reta entre dois pontos, dada pela variável matriz_distancias_linha_reta
 
-def add_in_heap(numero):
+    O custo do caminho depende da matriz_distancias_real
+'''
 
-    ...
-
-
-def delete_in_heap():
-    ...
-
-
-graph = {'E1': ['E2'],
-         'E2': ['E1', 'E3', 'E10', 'E9'],
-         'E3': ['E2', 'E4', 'E9', 'E13'],
-         'E4': ['E3', 'E5', 'E13', 'E8'],
-         'E5': ['E4', 'E6', 'E7', 'E8'],
-         'E6': ['E5'],
-         'E7': ['E5'],
-         'E8': ['E4', 'E5', 'E9', 'E12'],
-         'E9': ['E2', 'E3', 'E8', 'E11'],
-         'E10': ['E2'],
-         'E11': ['E9'],
-         'E12': ['E8'],
-         'E13': ['E3', 'E4', 'E14'],
-         'E14': ['E13']
+graph = {1 : [2],
+         2 : [1, 3, 10, 9],
+         3 : [2, 4, 9, 13],
+         4 : [3, 5, 13, 8],
+         5 : [4, 6, 7, 8],
+         6 : [5],
+         7 : [5],
+         8 : [4, 5, 9, 12],
+         9 : [2, 3, 8, 11],
+         10 : [2],
+         11 : [9],
+         12 : [8],
+         13 : [3, 4, 14],
+         14 : [13]
 }
 
-matrix_distancias = [
+matrix_distancias_linha_reta = [
     [-1, 10, 18.5, 24.8, 36.4, 38.8, 35.8, 25.4, 17.6, 9.1, 16.7, 27.3, 27.6, 29.8],
     [-1, -1, 8.5, 14.8, 26.6, 29.1, 26.1, 17.3, 10, 3.5, 15.5, 20.9, 19.1, 21.8],
     [-1, -1, -1, 6.3, 18.2, 20.6, 17.6, 13.6, 9.4, 10.3, 19.5, 19.1, 12.1, 16.6],
@@ -47,7 +38,6 @@ matrix_distancias = [
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 5.1],
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
 ]
-
 
 matrix_distancias_real = [
     [-1, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
@@ -66,13 +56,31 @@ matrix_distancias_real = [
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
 ]
 
-initial = str(input())
-destiny = str(input())
+initial = int(input())
+destiny = int(input())
 
-inicio = int(initial[-1])
-destino = int(destiny[-1])
+if initial in graph and destiny in graph: #verificar se o numero digitado pelo usuário está dentro do limite da quantidade de estações
+    print('yay')
+else:
+    print('essa estação nao existe amr')
 
 # if atual == destiny:
 #     print(f'Encontrei o caminho mais curto entre {initial} e {destiny}')
 # else:
 #     add_in_heap(graph[atual])
+
+# def varre_grafo(options):
+#     resp = options[0]
+#     for i in options:
+#         if i < resp:
+#             resp = i
+#     return resp
+
+
+# def add_in_heap(numero):
+
+#     ...
+
+
+# def delete_in_heap():
+#     ...
