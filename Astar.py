@@ -1,26 +1,27 @@
 '''
     A busca A* tem uma função de avaliação f(n), que é a soma do custo do caminho já percorrido (g(n)) e a função heurística adotada no problema (h(n))
-
     A h(n) utilizada para esse caso é a distância em linha reta entre dois pontos, dada pela variável matriz_distancias_linha_reta
-
     O custo do caminho depende da matriz_distancias_real
 '''
 
 def availableFunc(initial: int, lilnode: int, destiny: int):
-    global custo_caminho
-    heuristica = matrix_distancias_linha_reta[lilnode-1][destiny-1]
-    path_cost = custo_caminho + matrix_distancias_real[initial-1][lilnode-1]
+    global custo_caminho_tempo, linha
+    heuristica = matrix_distancias_linha_reta[lilnode-1][destiny-1] / 0.5
+    path_cost =  custo_caminho_tempo + matrix_distancias_real[initial-1][lilnode-1] / 0.5
     func = heuristica + path_cost
+    if linha not in graph[lilnode][-1] and linha != '':
+        func += 4
+        path_cost += 4
     return (func,path_cost)
 
 def Astar (initial: int, destiny: int, path_list: list):
-    global custo_caminho
+    global  custo_caminho_tempo, linha
     if initial == destiny:
         path_list.append(initial)
         return path_list
     else:
         path_list.append(initial)
-        no_potenciais = graph[initial]
+        no_potenciais = graph[initial][:-1]
         ordem = []
         for node in no_potenciais:
             funcao = availableFunc(initial,node,destiny)
@@ -32,23 +33,26 @@ def Astar (initial: int, destiny: int, path_list: list):
                     menorFuncao = funcao[0]
                     custoPossivel = funcao[1]
                     ordem.insert(0,[node,custoPossivel])
-        custo_caminho = ordem[0][1]
+        custo_caminho_tempo = ordem[0][1]
+        for lin in graph[initial][-1]: #atualizar linha
+            if lin in graph[ordem[0][0]][-1]:
+                linha = lin
         return Astar(ordem[0][0],destiny,path_list)
 
-graph = {1 : [2],
-         2 : [1, 3, 10, 9],
-         3 : [2, 4, 9, 13],
-         4 : [3, 5, 13, 8],
-         5 : [4, 6, 7, 8],
-         6 : [5],
-         7 : [5],
-         8 : [4, 5, 9, 12],
-         9 : [2, 3, 8, 11],
-         10 : [2],
-         11 : [9],
-         12 : [8],
-         13 : [3, 4, 14],
-         14 : [13]
+graph = {1 : [2, ('azul')],
+         2 : [1, 3, 10, 9, ('azul', 'amarela')],
+         3 : [2, 4, 9, 13, ('azul', 'vermelha')],
+         4 : [3, 5, 13, 8, ('azul', 'verde')],
+         5 : [4, 6, 7, 8, ('azul', 'amarela')],
+         6 : [5, ('azul')],
+         7 : [5, ('amarela')],
+         8 : [4, 5, 9, 12, ('verde', 'amarela')],
+         9 : [2, 3, 8, 11, ('vermelha', 'amarela')],
+         10 : [2, ('amarela')],
+         11 : [9, ('vermelho')],
+         12 : [8, ('verde')],
+         13 : [3, 4, 14, ('verde', 'vermelho')],
+         14 : [13, ('verde')]
 }
 
 matrix_distancias_linha_reta = [
@@ -85,15 +89,23 @@ matrix_distancias_real = [
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 5.1, -1]
 ]
 
+
+print(graph[9][-1])
+
 initial = int(input())
 destiny = int(input())
+linha = ''
 
 if initial in graph and destiny in graph: #verificar se o numero digitado pelo usuário está dentro do limite da quantidade de estações
-    print('vamos começar seu trajeto!')
-    path = []
-    custo_caminho = 0
-    resultado = Astar(initial, destiny,path)
-    print(resultado)
-    print(custo_caminho)
+    if initial == destiny:
+        custo_caminho_tempo = 0
+        print('amor voce ta na mesma estacao se manca bichona')
+    else: 
+        print('vamos começar seu trajeto!')
+        path = []
+        custo_caminho_tempo = 4
+        resultado = Astar(initial, destiny,path)
+        print(resultado)
+        print( custo_caminho_tempo)
 else:
     print('essa estação nao existe amr')
