@@ -7,12 +7,13 @@
 def availableFunc(initial: int, lilnode: int, destiny: int):
     global custo_caminho_tempo, linha
     heuristica = matrix_distancias_linha_reta[lilnode-1][destiny-1] / 0.5
-    path_cost =  custo_caminho_tempo + matrix_distancias_real[initial-1][lilnode-1] / 0.5
-    func = heuristica + path_cost
-    if linha not in graph[lilnode][-1] and linha != '':
-        func += 4
+    path_cost =  custo_caminho_tempo + (matrix_distancias_real[initial-1][lilnode-1] / 0.5)
+    baldeacao = 0
+    if linha not in graph[lilnode][-1]:
+        baldeacao = 4
         path_cost += 4
-    return (func,path_cost)
+    func = baldeacao + heuristica + path_cost
+    return (func,path_cost,linha)
 
 def Astar (initial: int, destiny: int, path_list: list):
     global  custo_caminho_tempo, linha
@@ -34,8 +35,9 @@ def Astar (initial: int, destiny: int, path_list: list):
                     custoPossivel = funcao[1]
                     ordem.insert(0,[node,custoPossivel])
         custo_caminho_tempo = ordem[0][1]
-        for lin in graph[initial][-1]: #atualizar linha
-            if lin in graph[ordem[0][0]][-1]:
+        node_selected = ordem[0][0]
+        for lin in graph[initial][-1]:      # atualizar cor da linha
+            if lin in graph[node_selected][-1]:
                 linha = lin
         return Astar(ordem[0][0],destiny,path_list)
 
@@ -89,23 +91,26 @@ matrix_distancias_real = [
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 5.1, -1]
 ]
 
-
-print(graph[9][-1])
-
 initial = int(input())
 destiny = int(input())
-linha = ''
 
 if initial in graph and destiny in graph: #verificar se o numero digitado pelo usuário está dentro do limite da quantidade de estações
-    if initial == destiny:
-        custo_caminho_tempo = 0
-        print('amor voce ta na mesma estacao se manca bichona')
-    else: 
-        print('vamos começar seu trajeto!')
-        path = []
+    if initial == destiny: # verifica se a estação inicial é igual a estação destino
         custo_caminho_tempo = 4
-        resultado = Astar(initial, destiny,path)
-        print(resultado)
-        print( custo_caminho_tempo)
+        print(f'Você já se encontra na estação destino. Para mudar de linha, o tempo demorado é de {custo_caminho_tempo} minutos')
+    else:
+        print(f'Me informe em qual linha você se encontra da estação {initial}:', end= " ")
+        print(', '.join(str(x) for x in graph[initial][-1]))
+
+        linha = str(input())
+        if linha not in graph[initial][-1]:
+            print('Essa linha não existe na estação que você se encontra.')
+        else:
+            path = []
+            custo_caminho_tempo = 0
+            resultado = Astar(initial, destiny,path)
+            print(resultado)
+            print(custo_caminho_tempo)
+            print(linha)
 else:
     print('essa estação nao existe amr')
