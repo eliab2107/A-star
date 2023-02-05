@@ -34,15 +34,14 @@ def heuristica(atual:int, proximo:int, final:int, tempo_ja_gasto:int, linha: str
     tempo_atual_destino_real = matrix_distancias_real[atual-1][final-1] *2
     tempo_atual_proximo_real = matrix_distancias_real[atual-1][proximo-1] * 2
     tempo_proximo_destino_real = matrix_distancias_real[proximo-1][final-1] *2
-    
-   
+    avanco = (tempo_proximo_destino_reta - tempo_atual_destino_reta) *2
     if linha in graph[atual][-2] and linha in graph[proximo][-2]:
         baldeacao = 0
     
     if proximo == final :
-        func = tempo_ja_gasto + tempo_atual_destino_real + baldeacao
+        func = tempo_ja_gasto + tempo_atual_destino_real + baldeacao 
     else:
-        func = tempo_ja_gasto + tempo_proximo_destino_reta + tempo_atual_proximo_real + baldeacao
+        func = tempo_ja_gasto + tempo_proximo_destino_reta + tempo_atual_proximo_real + baldeacao 
     tempo_ja_gasto += tempo_atual_proximo_real + baldeacao
     dicio = {'estacao':proximo, 'origem': atual, 'tempo_gasto': tempo_ja_gasto, 'linha':linha, 'func': func, 'dest': dest}
     add_option(dicio)
@@ -67,6 +66,7 @@ def Astar(node_atual:int):
             if graph[node][-1]:
                 #Para só aceitar nós que ainda valem a pena investigar
                 heuristica(node_atual, node, destiny, opcoes[0]['tempo_gasto'] , linha)
+        opcoes.pop(0)
         opcoes = sorted(opcoes, key=lambda k: k['func'])
         for lin in graph[node_atual][-2]:      
             # atualizar cor da linha
