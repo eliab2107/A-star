@@ -4,57 +4,99 @@
     O custo do caminho depende da matriz_distancias_real
 '''
 
-def availableFunc(initial: int, lilnode: int, destiny: int):
-    global custo_caminho_tempo, linha
-    heuristica = matrix_distancias_linha_reta[lilnode-1][destiny-1] / 0.5
-    path_cost =  custo_caminho_tempo + (matrix_distancias_real[initial-1][lilnode-1] / 0.5)
-    baldeacao = 0
-    if linha not in graph[lilnode][-1]:
-        baldeacao = 4
-        path_cost += 4
-    func = baldeacao + heuristica + path_cost
-    return (func,path_cost,linha)
 
-def Astar (initial: int, destiny: int, path_list: list):
-    global  custo_caminho_tempo, linha
-    if initial == destiny:
-        path_list.append(initial)
-        return path_list
+def fim(node:dict, inicial:int):
+    global opcoes, caminho
+    lista = []
+    opcoes = sorted(opcoes, key=lambda k: k['estacao'])
+    print(f'O tempo total da viagem será {node["tempo_gasto"]}, o caminho percorrido é:\n')
+   
+    print(caminho)
+
+def add_option(dicio:dict):
+    global opcoes
+    add = True
+    for i in range(len(opcoes)):    
+        if (opcoes[i]['estacao'] == dicio['estacao'] and opcoes[i]['func'] >= dicio['func']) or (opcoes[i]['estacao'] == dicio['estacao'] and dicio['tempo_gasto'] >= opcoes[i]['tempo_gasto']):
+            opcoes[i] = dicio
+            add  = False 
+            break   
+    if add:
+        opcoes.append(dicio)
+         
+            
+def heuristica(atual:int, proximo:int, final:int, tempo_ja_gasto:int, linha: str):
+    global opcoes
+    baldeacao = 4
+    dest = 0
+    tempo_atual_destino_reta = matrix_distancias_linha_reta[atual-1][final-1] *2
+    tempo_proximo_destino_reta = matrix_distancias_linha_reta[proximo-1][final-1] *2
+    tempo_atual_destino_real = matrix_distancias_real[atual-1][final-1] *2
+    tempo_atual_proximo_real = matrix_distancias_real[atual-1][proximo-1] * 2
+    tempo_proximo_destino_real = matrix_distancias_real[proximo-1][final-1] *2
+    
+   
+    if linha in graph[atual][-2] and linha in graph[proximo][-2]:
+        baldeacao = 0
+    
+    if proximo == final :
+        func = tempo_ja_gasto + tempo_atual_destino_real + baldeacao
     else:
-        path_list.append(initial)
-        no_potenciais = graph[initial][:-1]
-        ordem = []
-        for node in no_potenciais:
-            funcao = availableFunc(initial,node,destiny)
-            if ordem == []:
-                menorFuncao = funcao[0]
-                ordem.append([node,funcao[1]])
-            else:
-                if menorFuncao >= funcao[0]:
-                    menorFuncao = funcao[0]
-                    custoPossivel = funcao[1]
-                    ordem.insert(0,[node,custoPossivel])
-        custo_caminho_tempo = ordem[0][1]
-        node_selected = ordem[0][0]
-        for lin in graph[initial][-1]:      # atualizar cor da linha
-            if lin in graph[node_selected][-1]:
-                linha = lin
-        return Astar(ordem[0][0],destiny,path_list)
+        func = tempo_ja_gasto + tempo_proximo_destino_reta + tempo_atual_proximo_real + baldeacao
+    tempo_ja_gasto += tempo_atual_proximo_real + baldeacao
+    dicio = {'estacao':proximo, 'origem': atual, 'tempo_gasto': tempo_ja_gasto, 'linha':linha, 'func': func, 'dest': dest}
+    add_option(dicio)
 
-graph = {1 : [2, ('azul')],
-         2 : [1, 3, 10, 9, ('azul', 'amarela')],
-         3 : [2, 4, 9, 13, ('azul', 'vermelha')],
-         4 : [3, 5, 13, 8, ('azul', 'verde')],
-         5 : [4, 6, 7, 8, ('azul', 'amarela')],
-         6 : [5, ('azul')],
-         7 : [5, ('amarela')],
-         8 : [4, 5, 9, 12, ('verde', 'amarela')],
-         9 : [2, 3, 8, 11, ('vermelha', 'amarela')],
-         10 : [2, ('amarela')],
-         11 : [9, ('vermelho')],
-         12 : [8, ('verde')],
-         13 : [3, 4, 14, ('verde', 'vermelho')],
-         14 : [13, ('verde')]
+
+def Astar(node_atual:int):
+    global tempo_gasto_tot, linha, opcoes, initial, caminho
+    if node_atual == destiny:
+        fim(opcoes[0], initial)
+    else: 
+        for node in graph[node_atual][:-2]:
+            if node != destiny and len(graph[node][-2]) == 1: 
+                #para não adicionar nós que estejam na ponta 
+                graph[node][-1] = False
+            if node == destiny: 
+                #Caso o nó que esta sendo observado tenha caminho direto com o destino sua func é atualizada para usar a distancia real
+                if linha in graph[node_atual][-2] and linha in graph[node][-2]:
+                    opcoes[0]['func'] = opcoes[0]['tempo_gasto'] + (matrix_distancias_real[node_atual-1][destiny-1] * 2) + 0.01
+                else:
+                    opcoes[0]['func'] = opcoes[0]['tempo_gasto'] + (matrix_distancias_real[node_atual-1][destiny-1] *2) + 4 + 0.01
+                    
+            if graph[node][-1]:
+                #Para só aceitar nós que ainda valem a pena investigar
+                heuristica(node_atual, node, destiny, opcoes[0]['tempo_gasto'] , linha)
+        opcoes = sorted(opcoes, key=lambda k: k['func'])
+        for lin in graph[node_atual][-2]:      
+            # atualizar cor da linha
+            if lin in graph[opcoes[0]['estacao']][-2]:
+                linha = lin
+                opcoes[0]['linha'] = linha
+        if caminho[node_atual]['origem'] == opcoes[0]['estacao']:
+            #escolheu o nó de onde veio
+            #Se a melhor opção foi a anterior esse caminho nao tem futuro
+            graph[node_atual][-1] = False
+            opcoes.pop(1)
+            del caminho[opcoes[1]['estacao']] #tirando do caminho
+        caminho[opcoes[0]['estacao']] = opcoes[0]
+        Astar(opcoes[0]['estacao'])
+        
+        
+graph = {1 : [2, ['azul'], True ],
+         2 : [1, 3, 10, 9,['azul', 'amarela'], True],
+         3 : [2, 4, 9, 13,['azul', 'vermelha'], True],
+         4 : [3, 5, 13, 8,['azul', 'verde'], True],
+         5 : [4, 6, 7, 8,['azul', 'amarela'], True ],
+         6 : [5,['azul'], True ],
+         7 : [5,['amarela'], True ],
+         8 : [4, 5, 9, 12,['verde', 'amarela'], True ],
+         9 : [2, 3, 8, 11,['vermelha', 'amarela'], True ],
+         10 : [2,['amarela'], True ],
+         11 : [9,['vermelho'], True ],
+         12 : [8,['verde'], True ],
+         13 : [3, 4, 14,['verde', 'vermelho'], True ],
+         14 : [13,['verde'], True ]
 }
 
 matrix_distancias_linha_reta = [
@@ -91,26 +133,19 @@ matrix_distancias_real = [
     [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 5.1, -1]
 ]
 
+caminho = {}
 initial = int(input())
 destiny = int(input())
-
+linha = ''
+tempo_gasto_tot = 0
+opcoes = []
+opcoes.append({'estacao':initial, 'origem': 'origem', 'tempo_gasto': 0, 'linha':linha, 'func': 999999})
+caminho[initial] = {'estacao':initial, 'origem': 'origem', 'tempo_gasto': 0, 'linha':linha, 'func': 999999}
 if initial in graph and destiny in graph: #verificar se o numero digitado pelo usuário está dentro do limite da quantidade de estações
     if initial == destiny: # verifica se a estação inicial é igual a estação destino
         custo_caminho_tempo = 4
-        print(f'Você já se encontra na estação destino. Para mudar de linha, o tempo demorado é de {custo_caminho_tempo} minutos')
+        print(f'Você já se encontra na estação destino. Para mudar de linha, o tempo demorado é de {tempo_gasto_tot} minutos')
     else:
-        print(f'Me informe em qual linha você se encontra da estação {initial}:', end= " ")
-        print(', '.join(str(x) for x in graph[initial][-1]))
-
-        linha = str(input())
-        if linha not in graph[initial][-1]:
-            print('Essa linha não existe na estação que você se encontra.')
-        else:
-            path = []
-            custo_caminho_tempo = 0
-            resultado = Astar(initial, destiny,path)
-            print(resultado)
-            print(custo_caminho_tempo)
-            print(linha)
-else:
-    print('essa estação nao existe amr')
+        tempo_gasto_tot = 0
+        Astar(initial)
+   
