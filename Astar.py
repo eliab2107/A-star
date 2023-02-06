@@ -7,17 +7,23 @@
 
 def fim(node:dict, inicial:int):
     global opcoes, caminho
-    lista = []
-    opcoes = sorted(opcoes, key=lambda k: k['estacao'])
-    print(f'O tempo total da viagem será {node["tempo_gasto"]}, o caminho percorrido é:\n')
+    caminho_final = []
+    atual = opcoes[-1]['estacao']
+    while node != inicial:
+        caminho_final.append(caminho[node])
+        node = caminho[node]['origem']
+    print(f'O tempo total da viagem será {caminho_final[0]["tempo_gasto"]}, o caminho percorrido é:\n')
+    caminho_final.append(caminho[inicial])
    
-    print(caminho)
+    print(caminho_final)
+
+    
 
 def add_option(dicio:dict):
     global opcoes
     add = True
     for i in range(len(opcoes)):    
-        if (opcoes[i]['estacao'] == dicio['estacao'] and opcoes[i]['func'] >= dicio['func']) or (opcoes[i]['estacao'] == dicio['estacao'] and dicio['tempo_gasto'] >= opcoes[i]['tempo_gasto']):
+        if (opcoes[i]['estacao'] == dicio['estacao'] and opcoes[i]['func'] >= dicio['func']) or (opcoes[i]['estacao'] == dicio['estacao'] and opcoes[i]['tempo_gasto'] >= dicio['tempo_gasto'] ):
             opcoes[i] = dicio
             add  = False 
             break   
@@ -29,12 +35,11 @@ def heuristica(atual:int, proximo:int, final:int, tempo_ja_gasto:int, linha: str
     global opcoes
     baldeacao = 4
     dest = 0
-    tempo_atual_destino_reta = matrix_distancias_linha_reta[atual-1][final-1] *2
+ 
     tempo_proximo_destino_reta = matrix_distancias_linha_reta[proximo-1][final-1] *2
     tempo_atual_destino_real = matrix_distancias_real[atual-1][final-1] *2
     tempo_atual_proximo_real = matrix_distancias_real[atual-1][proximo-1] * 2
-    tempo_proximo_destino_real = matrix_distancias_real[proximo-1][final-1] *2
-    avanco = (tempo_proximo_destino_reta - tempo_atual_destino_reta) *2
+   
     if linha in graph[atual][-2] and linha in graph[proximo][-2]:
         baldeacao = 0
     
@@ -43,14 +48,14 @@ def heuristica(atual:int, proximo:int, final:int, tempo_ja_gasto:int, linha: str
     else:
         func = tempo_ja_gasto + tempo_proximo_destino_reta + tempo_atual_proximo_real + baldeacao 
     tempo_ja_gasto += tempo_atual_proximo_real + baldeacao
-    dicio = {'estacao':proximo, 'origem': atual, 'tempo_gasto': tempo_ja_gasto, 'linha':linha, 'func': func, 'dest': dest}
+    dicio = {'estacao':proximo, 'origem': atual, 'tempo_gasto': tempo_ja_gasto, 'linha':linha, 'func': func, 'dest': dest, 'baldeacao': baldeacao}
     add_option(dicio)
 
 
 def Astar(node_atual:int):
     global tempo_gasto_tot, linha, opcoes, initial, caminho
     if node_atual == destiny:
-        fim(opcoes[0], initial)
+        fim(node_atual, initial)
     else: 
         for node in graph[node_atual][:-2]:
             if node != destiny and len(graph[node][-2]) == 1: 
@@ -70,7 +75,7 @@ def Astar(node_atual:int):
         opcoes = sorted(opcoes, key=lambda k: k['func'])
         for lin in graph[node_atual][-2]:      
             # atualizar cor da linha
-            if lin in graph[opcoes[0]['estacao']][-2]:
+            if lin in graph[opcoes[0]['estacao']][-2]: #pega 
                 linha = lin
                 opcoes[0]['linha'] = linha
         if caminho[node_atual]['origem'] == opcoes[0]['estacao']:
@@ -93,9 +98,9 @@ graph = {1 : [2, ['azul'], True ],
          8 : [4, 5, 9, 12,['verde', 'amarela'], True ],
          9 : [2, 3, 8, 11,['vermelha', 'amarela'], True ],
          10 : [2,['amarela'], True ],
-         11 : [9,['vermelho'], True ],
+         11 : [9,['vermelha'], True ],
          12 : [8,['verde'], True ],
-         13 : [3, 4, 14,['verde', 'vermelho'], True ],
+         13 : [3, 4, 14,['verde', 'vermelha'], True ],
          14 : [13,['verde'], True ]
 }
 
