@@ -4,7 +4,6 @@
     O custo do caminho depende da matriz_distancias_real
 '''
 
-
 def fim(node:dict, inicial:int):
     global opcoes, caminho
     caminho_final = []
@@ -14,17 +13,12 @@ def fim(node:dict, inicial:int):
         node = caminho[node]['origem'] 
     print(f'O tempo total da viagem será {caminho_final[0]["tempo_gasto"]-4}, o caminho percorrido é:\n')
     caminho_final.append(caminho[inicial])
-   
-    print(caminho_final)
 
+    for i in range((len(caminho_final)-1),0,-1):
+       print(f'{caminho_final[i]["estacao"], caminho_final[i]["linha"]} -> ', end='')
+    print(f'{caminho_final[0]["estacao"], caminho_final[0]["linha"]}')
     
-
-def add_option(dicio:dict):
-    global opcoes
-    add = True
-    opcoes.append(dicio)
-         
-            
+    
 def heuristica(atual:int, proximo:int, final:int, tempo_ja_gasto:int, linha: str):
     global opcoes
     baldeacao = 4
@@ -43,8 +37,9 @@ def heuristica(atual:int, proximo:int, final:int, tempo_ja_gasto:int, linha: str
         func = tempo_ja_gasto + tempo_proximo_destino_reta + tempo_atual_proximo_real + baldeacao 
     
     tempo_ja_gasto += tempo_atual_proximo_real + baldeacao
-    dicio = {'estacao':proximo, 'origem': atual, 'tempo_gasto': tempo_ja_gasto, 'linha':linha, 'func': func, 'dest': dest, 'baldeacao': baldeacao}
-    add_option(dicio)
+    dicio = {'estacao':proximo, 'origem': atual, 'tempo_gasto': tempo_ja_gasto, 'linha':linha, 'func': func,  'baldeacao': baldeacao}
+    opcoes.append(dicio)
+    
 
 
 def Astar(node_atual:int):
