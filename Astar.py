@@ -11,8 +11,8 @@ def fim(node:dict, inicial:int):
     atual = opcoes[-1]['estacao']
     while node != inicial:
         caminho_final.append(caminho[node])
-        node = caminho[node]['origem']
-    print(f'O tempo total da viagem será {caminho_final[0]["tempo_gasto"]}, o caminho percorrido é:\n')
+        node = caminho[node]['origem'] 
+    print(f'O tempo total da viagem será {caminho_final[0]["tempo_gasto"]-4}, o caminho percorrido é:\n')
     caminho_final.append(caminho[inicial])
    
     print(caminho_final)
@@ -22,13 +22,7 @@ def fim(node:dict, inicial:int):
 def add_option(dicio:dict):
     global opcoes
     add = True
-    for i in range(len(opcoes)):    
-        if (opcoes[i]['estacao'] == dicio['estacao'] and opcoes[i]['func'] >= dicio['func']) or (opcoes[i]['estacao'] == dicio['estacao'] and opcoes[i]['tempo_gasto'] >= dicio['tempo_gasto'] ):
-            opcoes[i] = dicio
-            add  = False 
-            break   
-    if add:
-        opcoes.append(dicio)
+    opcoes.append(dicio)
          
             
 def heuristica(atual:int, proximo:int, final:int, tempo_ja_gasto:int, linha: str):
@@ -47,6 +41,7 @@ def heuristica(atual:int, proximo:int, final:int, tempo_ja_gasto:int, linha: str
         func = tempo_ja_gasto + tempo_atual_destino_real + baldeacao 
     else:
         func = tempo_ja_gasto + tempo_proximo_destino_reta + tempo_atual_proximo_real + baldeacao 
+    
     tempo_ja_gasto += tempo_atual_proximo_real + baldeacao
     dicio = {'estacao':proximo, 'origem': atual, 'tempo_gasto': tempo_ja_gasto, 'linha':linha, 'func': func, 'dest': dest, 'baldeacao': baldeacao}
     add_option(dicio)
