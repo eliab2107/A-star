@@ -7,22 +7,21 @@
 def fim(node:dict, inicial:int):
     global opcoes, caminho
     caminho_final = []
-    atual = opcoes[-1]['estacao']
+    tempo_final = caminho[node]["tempo_gasto"]
+    linha_final = caminho[node]["linha"]
     while node != inicial:
-        caminho_final.append(caminho[node])
-        node = caminho[node]['origem'] 
-    print(f'O tempo total da viagem será {caminho_final[0]["tempo_gasto"]-4}, o caminho percorrido é:\n')
-    caminho_final.append(caminho[inicial])
+        caminho_final.append(node)
+        node = caminho[node]['origem']
+      
+    print(f'\nO tempo total da viagem será {tempo_final-4:.2f}min, o caminho percorrido é:', end= ' ')
+    
+    estacoes = ', '.join(['E'+str(x) for x in reversed(caminho_final)])
+    print(estacoes)
+    print(f'Linha Final: {linha_final}\n')
 
-    for i in range((len(caminho_final)-1),0,-1):
-       print(f'{caminho_final[i]["estacao"], caminho_final[i]["linha"]} -> ', end='')
-    print(f'{caminho_final[0]["estacao"], caminho_final[0]["linha"]}')
-    
-    
 def heuristica(atual:int, proximo:int, final:int, tempo_ja_gasto:int, linha: str):
     global opcoes
     baldeacao = 4
-    dest = 0
  
     tempo_proximo_destino_reta = matrix_distancias_linha_reta[proximo-1][final-1] *2
     tempo_atual_destino_real = matrix_distancias_real[atual-1][final-1] *2
@@ -41,9 +40,8 @@ def heuristica(atual:int, proximo:int, final:int, tempo_ja_gasto:int, linha: str
     opcoes.append(dicio)
     
 
-
 def Astar(node_atual:int):
-    global tempo_gasto_tot, linha, opcoes, initial, caminho
+    global linha, opcoes, initial, caminho
     if node_atual == destiny:
         fim(node_atual, initial)
     else: 
@@ -138,7 +136,6 @@ opcoes.append({'estacao':initial, 'origem': 'origem', 'tempo_gasto': 0, 'linha':
 caminho[initial] = {'estacao':initial, 'origem': 'origem', 'tempo_gasto': 0, 'linha':linha, 'func': 999999}
 if initial in graph and destiny in graph: #verificar se o numero digitado pelo usuário está dentro do limite da quantidade de estações
     if initial == destiny: # verifica se a estação inicial é igual a estação destino
-        custo_caminho_tempo = 4
         print(f'Você já se encontra na estação destino. Para mudar de linha, o tempo demorado é de {tempo_gasto_tot} minutos')
     else:
         tempo_gasto_tot = 0
