@@ -64,14 +64,14 @@ def Astar(node_atual:int):
             if graph[node][-1]:
                 #Para só aceitar nós que ainda valem a pena investigar
                 heuristica(node_atual, node, destiny, opcoes[0]['tempo_gasto'] , linha)
-        print(f'\nFronteiras: {graph[node_atual][:-2]}')
+        print(f'\nFronteiras: {graph[node_atual][:-2]}')        
         opcoes.pop(0)
         opcoes = sorted(opcoes, key=lambda k: k['func'])
         for lin in graph[node_atual][-2]:      
             # atualizar cor da linha
             if lin in graph[opcoes[0]['estacao']][-2]: #pega 
                 linha = lin
-                opcoes[0]['linha'] = linha
+                opcoes[0]['linha'] = linha        
         if caminho[node_atual]['origem'] == opcoes[0]['estacao']:
             #escolheu o nó de onde veio
             #Se a melhor opção foi a anterior esse caminho nao tem futuro
@@ -134,7 +134,7 @@ matrix_distancias_real = [
 
 caminho = {}
 initial = int(input('Qual sua estação inicial? '))
-destiny = int(input('Para onde você quer ir? '))
+destiny = int(input('Para onde você quer ir? '))^
 linha = ''
 tempo_gasto_tot = 0
 opcoes = []
@@ -148,4 +148,4 @@ if initial in graph and destiny in graph: #verificar se o numero digitado pelo u
         tempo_gasto_tot = 0
         Astar(initial)
 else:
-    print("Existe uma estação que não está dentro dos limites.")   
+    print("Existe uma estação que não está dentro dos limites.")   ^
