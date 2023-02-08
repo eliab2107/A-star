@@ -12,12 +12,15 @@ def fim(node:dict, inicial:int):
     while node != inicial:
         caminho_final.append(node)
         node = caminho[node]['origem']
-      
-    print(f'\nO tempo total da viagem será {tempo_final-4:.2f}min, o caminho percorrido é:', end= ' ')
+    caminho_final.append(node)
+    
+    tempo_convert = "%02dh:%02dmin" % (divmod(tempo_final-4, 60)) #converte o tempo(min) para h:min
+    print(f'\nO tempo total da viagem será {tempo_convert}, o caminho percorrido é:', end= ' ')
     
     estacoes = ', '.join(['E'+str(x) for x in reversed(caminho_final)])
     print(estacoes)
     print(f'Linha Final: {linha_final}\n')
+
 
 def heuristica(atual:int, proximo:int, final:int, tempo_ja_gasto:int, linha: str):
     global opcoes
@@ -34,6 +37,8 @@ def heuristica(atual:int, proximo:int, final:int, tempo_ja_gasto:int, linha: str
         func = tempo_ja_gasto + tempo_atual_destino_real + baldeacao 
     else:
         func = tempo_ja_gasto + tempo_proximo_destino_reta + tempo_atual_proximo_real + baldeacao 
+    if linha not in graph[atual][-2]: #8 -> 6 
+        func += 4
     
     tempo_ja_gasto += tempo_atual_proximo_real + baldeacao
     dicio = {'estacao':proximo, 'origem': atual, 'tempo_gasto': tempo_ja_gasto, 'linha':linha, 'func': func,  'baldeacao': baldeacao}
@@ -59,13 +64,14 @@ def Astar(node_atual:int):
             if graph[node][-1]:
                 #Para só aceitar nós que ainda valem a pena investigar
                 heuristica(node_atual, node, destiny, opcoes[0]['tempo_gasto'] , linha)
+        print(f'\nFronteiras: {graph[node_atual][:-2]}')        
         opcoes.pop(0)
         opcoes = sorted(opcoes, key=lambda k: k['func'])
         for lin in graph[node_atual][-2]:      
             # atualizar cor da linha
             if lin in graph[opcoes[0]['estacao']][-2]: #pega 
                 linha = lin
-                opcoes[0]['linha'] = linha
+                opcoes[0]['linha'] = linha        
         if caminho[node_atual]['origem'] == opcoes[0]['estacao']:
             #escolheu o nó de onde veio
             #Se a melhor opção foi a anterior esse caminho nao tem futuro
@@ -127,17 +133,19 @@ matrix_distancias_real = [
 ]
 
 caminho = {}
-initial = int(input())
-destiny = int(input())
+initial = int(input('Qual sua estação inicial? '))
+destiny = int(input('Para onde você quer ir? '))
 linha = ''
 tempo_gasto_tot = 0
 opcoes = []
 opcoes.append({'estacao':initial, 'origem': 'origem', 'tempo_gasto': 0, 'linha':linha, 'func': 999999})
 caminho[initial] = {'estacao':initial, 'origem': 'origem', 'tempo_gasto': 0, 'linha':linha, 'func': 999999}
+
 if initial in graph and destiny in graph: #verificar se o numero digitado pelo usuário está dentro do limite da quantidade de estações
     if initial == destiny: # verifica se a estação inicial é igual a estação destino
         print(f'Você já se encontra na estação destino. Para mudar de linha, o tempo demorado é de {tempo_gasto_tot} minutos')
     else:
         tempo_gasto_tot = 0
         Astar(initial)
-   
+else:
+    print("Existe uma estação que não está dentro dos limites.")
