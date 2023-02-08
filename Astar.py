@@ -64,7 +64,7 @@ def Astar(node_atual:int):
             if graph[node][-1]:
                 #Para só aceitar nós que ainda valem a pena investigar
                 heuristica(node_atual, node, destiny, opcoes[0]['tempo_gasto'] , linha)
-        print(f'\nFronteiras: {graph[node_atual][:-2]}')        
+        print(f'\nFronteiras da E{node_atual}: {graph[node_atual][:-2]}')        
         opcoes.pop(0)
         opcoes = sorted(opcoes, key=lambda k: k['func'])
         for lin in graph[node_atual][-2]:      
